@@ -30,10 +30,10 @@ def load_data(PATH: str) -> pd.DataFrame:
 # 파일명에 / 포함되어 파일 생성 에러 생기는 것 방지
 
 
-def clean_text(string: str):
-    only_string = re.sub(
-        '[-=+,#/\?:^.@*\"※~ㆍ!』‘|\(\)\[\]`\'…》\”\“\’·]', '_', string)
-    return only_string
+def clean_text(text: str):
+    special = re.compile(r'[^A-Za-z0-9가-힣+]')
+    result = special.sub('',text)
+    return result
 
 # %%
 
@@ -101,7 +101,7 @@ def df_to_md(df: pd.DataFrame, questions: dict, total_question_number):
         file_name = f"{name}_{major}_{track}"
 
         # markdown 파일 생성
-        f = open(f'./application/{file_name}.md', 'w+')   # 파일명
+        f = open(f'./application/{track}/{file_name}.md', 'w+')   # 파일명
         f.write(f"# {file_name}\n\n")     # h1
         # 지원자 정보
         f.write(
