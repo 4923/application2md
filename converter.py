@@ -29,6 +29,7 @@ def clean_text(text: str):
 
 
 def check_questions():
+    # 공통문항 변경하여 사용 시 하단 dictionary 수정
     questions: dict = {
         'q_name': '지원자 성함을 입력해 주세요.',
         'q_major': '지원자의 소속 학과를 입력해 주세요.',
@@ -85,8 +86,13 @@ def df_to_md(df: pd.DataFrame, questions: dict, total_question_number):
         major = clean_text(candidate[questions['q_major']])
         track = clean_text(candidate[questions['q_track']])
 
-        timestamp, email, phone, portfolio = candidate[0], candidate[
-            1], candidate[3], candidate[questions['portfolio']]
+        # 포트폴리오 항목이 없을경우 예외처리
+        try:
+            portfolio = candidate[questions['portfolio']]
+        except:
+            portfolio = ''
+
+        timestamp, email, phone,  = candidate[0], candidate[1], candidate[3]
         file_name = f"{name}_{major}_{track}"
 
         # markdown 파일 생성
