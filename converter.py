@@ -1,14 +1,11 @@
 # %%
 # Convert spread sheet (csv or excel) into markdown
 
-from operator import is_
 import pandas as pd
+import re
 
 
 # %%
-
-# 어차피 스프레드 시트 특성상 엑셀파일은 하나일테니까 glob 까지 쓸 이유는 없음
-
 
 def load_data(PATH: str) -> pd.DataFrame:
     # 엑셀 로드
@@ -27,6 +24,16 @@ def load_data(PATH: str) -> pd.DataFrame:
     # 지원자 명단 확인: 질문항목인 1행 제외해야하므로 -1
     print(f"총 {len(df_raw)-1} 명의 지원자가 지원했습니다.")
     return df_raw
+
+# %%
+
+# 파일명에 / 포함되어 파일 생성 에러 생기는 것 방지
+
+
+def clean_text(string: str):
+    only_string = re.sub(
+        '[-=+,#/\?:^.@*\"※~ㆍ!』‘|\(\)\[\]`\'…》\”\“\’·]', '_', string)
+    return only_string
 
 # %%
 
@@ -63,9 +70,9 @@ def check_questions():
     # 그 외 학교 개별문항 추가
     is_more = input("학교별 개별 문항이 있다면 yes 없다면 N를 입력하세요: ")
     idx_more = 0
-    while is_more != 'N':
+    while is_more == 'yes':
         idx_more += 1
-        question_more = input(f"{4+idx_more}번 문항을 입력하세요 (중단: N)")
+        question_more = input(f"{4+idx_more}번 문항을 입력하세요 (중단: N): ")
         if question_more != 'N':
             questions[f"q_no{4+idx_more}"] = question_more
         else:
@@ -80,17 +87,15 @@ def check_questions():
 
 
 def df_to_md(df: pd.DataFrame, questions: dict, total_question_number):
-    # file I/O
-    # print(questions)
-    # print(questions['q_name'])
     for idx in range(len(df)):
         # 지원서
         candidate: pd.DataFrame = df.loc[idx]
 
         # 주요 항목
-        name = candidate[questions['q_name']]
-        major = candidate[questions['q_major']]
-        track = candidate[questions['q_track']]
+        name = clean_text(candidate[questions['q_name']])
+        major = clean_text(candidate[questions['q_major']])
+        track = clean_text(candidate[questions['q_track']])
+
         timestamp, email, phone, portfolio = candidate[0], candidate[
             1], candidate[3], candidate[questions['portfolio']]
         file_name = f"{name}_{major}_{track}"
