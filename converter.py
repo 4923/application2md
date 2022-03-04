@@ -7,23 +7,13 @@ import re
 
 # %%
 
-def load_data(PATH: str) -> pd.DataFrame:
-    # 엑셀 로드
-    if PATH.endswith(".xls"):
-        df_raw = pd.read_excel(PATH)
-    # 지원하지 않는 확장자
-    elif not PATH.endswith(".csv"):
-        return "[ERROR: 파일확장자] xls 또는 csv 확장자 파일을 입력하세요."
-    # csv 로드
-    else:
-        df_raw = pd.read_csv(PATH)
+def load_data(PATH_list: list) -> pd.DataFrame:
+    df = pd.DataFrame()
+    for PATH in PATH_list:
+        df = pd.concat([df, pd.read_csv(PATH)])
 
-    # fill NaN
-    df_raw.fillna('')
-
-    # 지원자 명단 확인: 질문항목인 1행 제외해야하므로 -1
-    print(f"총 {len(df_raw)-1} 명의 지원자가 지원했습니다.")
-    return df_raw
+    print(f"총 {len(df)} 명의 지원자가 지원했습니다.")
+    return df
 
 # %%
 
@@ -32,7 +22,7 @@ def load_data(PATH: str) -> pd.DataFrame:
 
 def clean_text(text: str):
     special = re.compile(r'[^A-Za-z0-9가-힣+]')
-    result = special.sub('',text)
+    result = special.sub('', text)
     return result
 
 # %%
@@ -50,8 +40,7 @@ def check_questions():
         'q_no4': '4. 멋쟁이사자처럼 대학은 최소 주 2회 모임 & 10시간 이상의 시간 투자를 권장합니다. 활동 기간동안 얼마나 열정적으로, 매주 얼만큼의 시간을 할애하실 수 있는지 작성해주세요. (500자 이내)'
     }
 
-    # 공통문항 -> 입력으로 바꿔야겠다
-    print(f"""다음은 공통 문항입니다.
+    print(f"""다음은 공통 문항입니다. 잘못 기입된 항목이 있다면 변경해주세요. (./converter.py)
     지원자 성명 : {questions['q_name']}
     지원자 전공 : {questions['q_major']}
     지원 트랙 : {questions['q_track']}
